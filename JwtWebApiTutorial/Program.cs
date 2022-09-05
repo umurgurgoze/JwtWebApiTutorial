@@ -1,3 +1,4 @@
+global using JwtWebApiTutorial.Services.UserService; // 12- Auth Controllerda referans vermeden çalýþabilmek için global ekledik.
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -24,6 +25,10 @@ builder.Services.AddSwaggerGen( //9-Swagger header ekleyebilmek için ayarlarýmýz
         });
         options.OperationFilter<SecurityRequirementsOperationFilter>();
     });
+// 11- UserService constructorda kullanabilmek için dependency injection yapýyoruz.
+builder.Services.AddScoped<IUserService, UserService>();
+// 13- Http Context Accessor ekliyoruz.
+builder.Services.AddHttpContextAccessor();
 
 
 //7-Authentication Scheme ekliyoruz.//////////////////////////////////////////

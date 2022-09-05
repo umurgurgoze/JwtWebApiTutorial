@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -14,10 +15,28 @@ namespace JwtWebApiTutorial.Controllers
         public static User user = new User();
         //6-AppSettings'deki token bilgisini alabilmek için IConfiguration ekledik.
         private readonly IConfiguration _configuration;
+        private readonly IUserService _userService;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(IConfiguration configuration, IUserService userService)
         {
             _configuration = configuration;
+            _userService = userService;
+        }
+        // 9 - NotBest Practice - Read Claims On Controller
+        [HttpGet, Authorize]
+        public ActionResult<object> GetMeWithClaimsOnController()
+        {
+            var userName = User?.Identity?.Name;
+            var userName2 = User?.FindFirstValue(ClaimTypes.Name);
+            var role = User?.FindFirstValue(ClaimTypes.Role);
+            return Ok(new { userName, userName2, role });
+        }
+        // 15 - BestPractice - Read User Info With HttpContextAccessor
+        [HttpGet("GetMe"), Authorize]
+        public ActionResult<string> GetMe()
+        {
+            var userName = _userService.GetMyName();
+            return Ok(userName);
         }
 
         // 1- Username,password kayıt
